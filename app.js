@@ -9,7 +9,7 @@ app.use((err, req, res, next) => next());
 
 const key = JSON.parse(fs.readFileSync('./.key', 'utf8'));
 
-require('./steemapi')(app);
+require('./steemapi')(app, key);
 require('./dialogflow')(app);
 
 const server = app.listen(3000, function(){

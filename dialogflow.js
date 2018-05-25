@@ -3,11 +3,16 @@ module.exports = function(app) {
 	const request = require('request');		
 	const TOKEN = '';
 
+
+	const notUnderstood = (response) => {		
+		const msg = '죄송해요. 알아듣지못했어요. 다시 말해줄래요?';
+		response.json({ 'speech': msg, 'displayText': msg });
+	}
+
 	app.post('/process', (req, res) => {
 	  	const query = req.body.query;
 
-	  	if(!query){
-	  	  res.json({flag: 0});
+	  	if(!query){	  	  
 	  	  return;
 	  	}	  	
 
@@ -29,13 +34,40 @@ module.exports = function(app) {
 	     	// res.json({flag: 1, data: objResult.result.parameters});
 	     	const intentName = objResult.result.metadata.intentName;
 
-	     	if(intentName=='wallet_info'){
-	     		app.getWalletinfo().then((data) => {
-	     			res.json({flag: 1, data: data})
-	     		}).catch((err) =>{
-		      		console.error(err);
-		      		res.json({flag: 0});
-		      	});		      	
+	     	if(intentName=='view_intent'){	     		
+	     		const discuss_option = objResult.result.parameters.discuss_option;
+
+	     		const query = {"tag": "kr", "limit": 10};
+	     		if(discuss_option=='최신'){
+	     			app.getDiscussionsByCreated(query, (err, result) => {
+	     				if(err){
+	     					notUnderstood(response);
+	     				} else {	     					
+	     					let msg = "";
+	     					result.forEach((entry) => {
+	     						const url = "https://steemit.com/"+entry.url;
+	     						msg += entry.title +"\n URL: "+url;
+	     					});
+	     					
+	     					response.json({ 'speech': msg, 'displayText': msg });
+	     				}	     		
+	     			});
+	     		} else if(discuss_option=='핫한'){
+	     			app.getDiscussionsByHot(query, (err, result) => {
+	     				if(err){
+	     					notUnderstood(response);
+	     				} else {
+	     					let msg = "";
+	     					result.forEach((entry) => {
+	     						const url = "https://steemit.com/"+entry.url;
+	     						msg += entry.title +"\n URL: "+url;
+	     					});
+	     					
+	     					response.json({ 'speech': msg, 'displayText': msg });
+	     				}	     		
+	     			});	
+	     		}
+	     		
 	     	} else {
 	     		console.log(`  No intent matched.`);
 		      	res.json({flag: 0});
