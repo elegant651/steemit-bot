@@ -10,7 +10,7 @@ app.use((err, req, res, next) => next());
 const key = JSON.parse(fs.readFileSync('./.key', 'utf8'));
 
 require('./steemapi')(app, key);
-require('./dialogflow')(app);
+require('./dialogflow')(app, key);
 
 const server = app.listen(3000, function(){
   console.log("Express server has started on port 3000")
