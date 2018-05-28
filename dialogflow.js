@@ -52,7 +52,7 @@ module.exports = function(app, key) {
 	}
 
 	const analyzeForIntentV1 = (body, res) => {
-		const objResult = JSON.parse(body);     	
+		const objResult = body;     	
      	const intentName = objResult.result.metadata.intentName;
 
      	if(intentName=='view_intent'){	     		
@@ -75,7 +75,7 @@ module.exports = function(app, key) {
 	  	  return;
 	  	}
 
-		analyzeForIntent(body, res);
+		analyzeForIntentV1(body, res);
 	});
 
 	app.post('/process', (req, res) => {
@@ -98,7 +98,8 @@ module.exports = function(app, key) {
 		  }
 	    };
 	    request.get(options, function (error, response, body) {
-	      if (!error) {			        
+	      if (!error) {		
+	      	body = JSON.parse(body);	        
 	        analyzeForIntentV1(body, res);
  
 	      } else {
