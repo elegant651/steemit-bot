@@ -5,7 +5,7 @@ module.exports = function(app, key) {
 
 
 	const notUnderstood = (res) => {		
-		const msg = '죄송해요. 알아듣지못했어요. 다시 말해줄래요?';
+		const msg = '죄송해요. 알아듣지 못했어요. 다시 말해줄래요?';
 		res.json({ 'speech': msg, 'displayText': msg });
 	}
 
@@ -25,17 +25,41 @@ module.exports = function(app, key) {
  			});
  		} else if(discuss_option=='핫한'){	     			
  			app.getDiscussionsByHot(st_query).then((result) => {	     				
-					let msg = "";
-					result.forEach((entry) => {
-						const url = "https://steemit.com/"+entry.url;
-						msg += entry.title +"\n URL: "+url;
-					});
-					
-					res.json({ 'speech': msg, 'displayText': msg });	     					     		
+				let msg = "";
+				result.forEach((entry) => {
+					const url = "https://steemit.com/"+entry.url;
+					msg += entry.title +"\n URL: "+url;
+				});
+				
+				res.json({ 'speech': msg, 'displayText': msg });	     					     		
  			}).catch((err) => {
  				notUnderstood(res);
  			});	
  		}
+	}
+
+	const actionOnVoteIntent = (tag, res) => {		
+		app.getDiscussionsByTag(tag).then((post) => {
+			console.log(JSON.stringify(post));
+
+			app.comment(tag, post).then((post) => {		
+				app.vote(post, 100).then((post) => {
+
+					let msg = `${tag}의 자동 보팅이 완료되었습니다! `;
+					const url = "https://steemit.com/"+post.url;
+					msg += post.title +"\n URL: "+url;							
+
+					res.json({ 'speech': msg, 'displayText': msg });			
+				}).catch((err) => {
+					console.error(err);
+				});
+			}).catch((err) => {
+				console.error(err);
+			});
+		}).catch((err) => {
+			console.error(err);
+			notUnderstood(res);
+		});						
 	}
 
 	const analyzeForIntent = (body, res) => {		
@@ -59,7 +83,20 @@ module.exports = function(app, key) {
      		const discuss_option = objResult.result.parameters.discuss_option;
 
      		actionOnViewIntent(discuss_option, res);
-     	} else {
+     	} else if(intentName=='vote_intent'){
+			const tag_option = objResult.result.parameters.tag_option;
+
+			if(tag_option=='태그') {
+				const resolvedQuery = objResult.result.resolvedQuery;
+				const arrTags = resolvedQuery.split(" ").filter((value) => value != tag_option);
+
+				if(arrTags[0]){
+					actionOnVoteIntent(arrTags[0], res);
+				} else {					
+					notUnderstood(res);
+				}
+			}		
+		} else {
      	  console.log(`  No intent matched.`);
 	      notUnderstood(res);
      	}
@@ -69,7 +106,7 @@ module.exports = function(app, key) {
 		const body = req.body;	
 
 		console.log(JSON.stringify(body));
-
+		
 		if(!body){
 		  notUnderstood(res);
 	  	  return;

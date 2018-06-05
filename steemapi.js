@@ -32,31 +32,75 @@ module.exports = function(app, key) {
 			    if(err){
 			        reject(err);
 			    }
-			    			    
+
 			    resolve(response);
 			});
 		});
 	}
 
-
-	app.comment = (post, tags) => {
+	app.getDiscussionsByTag = (tag) => {
 		return new Promise((resolve, reject) => {
-			const title = "";
-			const body = "안녕하세요. 업보팅 하고 갑니다."
-			const metadata = { tags: [tags] };
-			steem.broadcast.comment(
-				key.postKey,
-				post.author,
-				post.permlink,
-				key.creator,
-				steem.formatter.commentPermlink(post.author, post.permlink),
-    			title,
-    			body,
-    			metadata
-			);
+			const query = { tag, limit: 1};
+			steem.api.getDiscussionsByCreated(query, (err, res) => {
+			  if (err) {
+			    reject(err);
+			  } else {
+			    res.forEach(post => {
+			      const voters = post.active_votes.map(vote => vote.voter);
+			      const isVoted = voters.includes(key.creator);
+			      
+			      if (!isVoted) {
+			      	resolve(post);			        
+			      } 
+			    });
+			  }
+			});
 		});
 	}
 
+	app.getContentReplies = (author, permlink) => {
+		return new Promise((resolve, reject) => {
+			steem.api.getContentAsync(author, permlink)
+  			.then((post) =>{
+    			steem.api.getContentRepliesAsync(post.author, post.permlink)
+      			.then((replies) => {
+        			// console.log(JSON.stringify(replies, null, 2));
+        			resolve(replies);
+      			}).catch((err) => {
+      				reject(err);
+      			});
+  			}).catch((err) => {
+  				reject(err);
+  			});
+		});
+	}
+
+
+	app.comment = (tag, post) => {
+		return new Promise((resolve, reject) => {			
+			const title = "";
+			const body = `안녕하세요. \`${tag}\` 태그에 대한 업보팅 하고 갑니다.`;			
+			const metadata = { tags: [tag] }
+			steem.broadcast.comment(
+			    key.postKey,
+			    post.author,
+			    post.permlink,
+			    key.creator,
+			    steem.formatter.commentPermlink(post.author, post.permlink),
+			    title,
+			    body,
+			    metadata,
+			    (err, result) => {
+			      console.log(err, result);
+			      if(err) {
+			      	reject(err);
+			      } else {
+			      	resolve(post);
+			      }
+			    }
+			);
+		});
+	}
 
 	app.vote = (post, rate) => {
 		return new Promise((resolve, reject) => {
@@ -70,12 +114,12 @@ module.exports = function(app, key) {
 					if(err) {
 						reject(err);
 					} else {
-						resolve(res);
+						resolve(post);
 					}
 				}
 			);
 		});
 	}
-	
+		
 
 }
