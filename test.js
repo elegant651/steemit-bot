@@ -4,22 +4,42 @@ const key = JSON.parse(fs.readFileSync('./.key', 'utf8'));
 const steem = require('steem');
 
 const tag = "kr"
-const query = { tag, limit: 1};
-steem.api.getDiscussionsByCreated(query, (err, res) => {
-  if (err) {
+// const query = { tag, limit: 1};
+// steem.api.getDiscussionsByCreated(query, (err, res) => {
+//   if (err) {
     
-  } else {
-    res.forEach(post => {
-      const voters = post.active_votes.map(vote => vote.voter);
-      const isVoted = voters.includes("willpark");
+//   } else {
+//     res.forEach(post => {
+//       const voters = post.active_votes.map(vote => vote.voter);
+//       const isVoted = voters.includes("willpark");
       
-      if (!isVoted) {
-        // resolve(post);                  
-        console.log(post);
-      } 
+//       if (!isVoted) {
+        
+//       } 
+//     });
+//   }
+// });
+
+const tag = "kr";
+app.getDiscussionsByTag(tag).then((post) => {
+    console.log(JSON.stringify(post));
+    app.comment(tag, post).then((post) => {     
+        app.vote(post, 1000).then((post) => {
+            let msg = `${tag}의 자동 보팅이 완료되었습니다! `;
+            const url = "https://steemit.com/"+post.url;
+            msg += post.title +"\n URL: "+url;                          
+
+            console.log(msg);
+        }).catch((err) => {
+            console.error(err);
+        });
+    }).catch((err) => {
+        console.error(err);
     });
-  }
-});
+}).catch((err) => {
+    console.error(err);
+});         
+
 
 // app.getDiscussionsByTag(tag).then((post) => {
 //     console.log(JSON.stringify(post));

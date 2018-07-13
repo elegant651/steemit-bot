@@ -42,9 +42,9 @@ module.exports = function(app, key) {
 		app.getDiscussionsByTag(tag).then((post) => {
 			console.log(JSON.stringify(post));
 
-			app.comment(tag, post).then((post) => {		
-				app.vote(post, 100).then((post) => {
-
+			app.vote(post, 100).then((post) => {
+				app.comment(tag, post).then((post) => {		
+				
 					let msg = `${tag}의 자동 보팅이 완료되었습니다! `;
 					const url = "https://steemit.com/"+post.url;
 					msg += post.title +"\n URL: "+url;							
@@ -52,9 +52,13 @@ module.exports = function(app, key) {
 					res.json({ 'speech': msg, 'displayText': msg });			
 				}).catch((err) => {
 					console.error(err);
+					const errorMsg = `다음과 같은 이유로, 프로세스가 완료되지 못했습니다 : ${err}`;
+					res.json({ 'speech': errorMsg, 'displayText': errorMsg});
 				});
 			}).catch((err) => {
 				console.error(err);
+				const errorMsg = `다음과 같은 이유로, 프로세스가 완료되지 못했습니다 : ${err}`;
+				res.json({ 'speech': errorMsg, 'displayText': errorMsg});
 			});
 		}).catch((err) => {
 			console.error(err);
@@ -62,6 +66,7 @@ module.exports = function(app, key) {
 		});						
 	}
 
+	/* for v2, but not used currently */
 	const analyzeForIntent = (body, res) => {		
 		const intentName = body.queryResult.intent.displayName;	
 
@@ -102,7 +107,7 @@ module.exports = function(app, key) {
      	}
 	}
 
-	app.post('/processForDl', (req, res) => {
+	app.post('/process', (req, res) => {
 		const body = req.body;	
 
 		console.log(JSON.stringify(body));
@@ -115,7 +120,7 @@ module.exports = function(app, key) {
 		analyzeForIntentV1(body, res);
 	});
 
-	app.post('/process', (req, res) => {
+	app.post('/processDl', (req, res) => {
 	  	const query = req.body.query;
 
 	  	if(!query){	  	  

@@ -53,6 +53,8 @@ module.exports = function(app, key) {
 			      	resolve(post);			        
 			      } 
 			    });
+
+			    reject("notFound");
 			  }
 			});
 		});
