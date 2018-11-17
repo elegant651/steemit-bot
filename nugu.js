@@ -23,7 +23,13 @@ module.exports = function(app, key) {
 						msg += entry.title +"\n URL: "+url;
 					});
 					
-					res.json({ 'speech': msg, 'displayText': msg });
+					res.json({
+			        	"version": "2.0",
+			        	"resultCode": "OK",
+			        	"output": {
+			          		"content": msg
+			          	}
+			        })
  			}).catch((err) => {
  				notUnderstood(res);
  			});
@@ -35,7 +41,13 @@ module.exports = function(app, key) {
 					msg += entry.title +"\n URL: "+url;
 				});
 				
-				res.json({ 'speech': msg, 'displayText': msg });	     					     		
+				res.json({
+		        	"version": "2.0",
+		        	"resultCode": "OK",
+		        	"output": {
+		          		"content": msg
+		          	}
+		        })
  			}).catch((err) => {
  				notUnderstood(res);
  			});	
@@ -74,13 +86,18 @@ module.exports = function(app, key) {
 		const body = req.body;	
 
 		console.log(JSON.stringify(body));
-		notUnderstood(res);
-		// if(!body){
-		//   notUnderstood(res);
-	 //  	  return;
-	 //  	}
 
-		// analyzeForIntentV1(body, res);
+		if(!body){
+		  notUnderstood(res);
+	  	  return;
+	  	}
+
+	  	const option = "최신"
+	  	if(body.action.parameters.hasOwnProperty("ds_option_hot")) {
+	  		option = "핫한"
+	  	}
+
+		actionOnViewIntent(option, res);
 	})
 
 	app.post('/answer.vote_intent', (req, res) => {
