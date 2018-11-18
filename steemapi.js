@@ -40,6 +40,19 @@ module.exports = function(app, key) {
 
 	app.getDiscussionsByTag = (tag) => {
 		return new Promise((resolve, reject) => {
+			const query = { tag, limit: 10};
+			steem.api.getDiscussionsByCreated(query, (err, res) => {
+			  if (err) {
+			    reject(err);
+			  } else {
+			    resolve(res);
+			  }
+			});
+		});
+	}
+
+	app.getDiscussionsByTagForVote = (tag) => {
+		return new Promise((resolve, reject) => {
 			const query = { tag, limit: 1};
 			steem.api.getDiscussionsByCreated(query, (err, res) => {
 			  if (err) {

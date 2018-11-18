@@ -54,8 +54,31 @@ module.exports = function(app, key) {
  		}
 	}
 
+	const actionOnViewTagIntent = (tag, res) => {
+		app.getDiscussionsByTag(tag).then((result) => {
+			console.log(JSON.stringify(result));
+
+			let msg = "";
+			result.forEach((entry) => {
+				const url = "https://steemit.com/"+entry.url;
+				msg += entry.title +"\n URL: "+url;
+			});
+			
+			res.json({
+	        	"version": "2.0",
+	        	"resultCode": "OK",
+	        	"output": {
+	          		"content3": msg
+	          	}
+	        })
+		}).catch((err) => {
+			console.error(err);
+			notUnderstood(res);
+		});						
+	}
+
 	const actionOnVoteIntent = (tag, res) => {		
-		app.getDiscussionsByTag(tag).then((post) => {
+		app.getDiscussionsByTagForVote(tag).then((post) => {
 			console.log(JSON.stringify(post));
 
 			app.vote(post, 100).then((post) => {
@@ -69,7 +92,7 @@ module.exports = function(app, key) {
 			        	"version": "2.0",
 			        	"resultCode": "OK",
 			        	"output": {
-			          		"content": msg
+			          		"content2": msg
 			          	}
 			        })
 				}).catch((err) => {
@@ -79,7 +102,7 @@ module.exports = function(app, key) {
 			        	"version": "2.0",
 			        	"resultCode": "OK",
 			        	"output": {
-			          		"content": errorMsg
+			          		"content2": errorMsg
 			          	}
 			        })
 				});
@@ -90,7 +113,7 @@ module.exports = function(app, key) {
 		        	"version": "2.0",
 		        	"resultCode": "OK",
 		        	"output": {
-		          		"content": errorMsg
+		          		"content2": errorMsg
 		          	}
 		        })
 			});
@@ -118,7 +141,7 @@ module.exports = function(app, key) {
 		actionOnViewIntent(option, res);
 	})
 
-	app.post('/answer.vote_intent', (req, res) => {
+	app.post('/answer.vote_intent2', (req, res) => {
 		const body = req.body;
 
 		console.log(JSON.stringify(body));
@@ -128,8 +151,8 @@ module.exports = function(app, key) {
 	  	  return;
 	  	}
 
-	  	if(body.action.parameters.hasOwnProperty("tag")){
-	  		let tag = body.action.parameters.tag.value
+	  	if(body.action.parameters.hasOwnProperty("tag_option")){
+	  		let tag = body.action.parameters.tag_option.value
 		  	
 			actionOnVoteIntent(tag, res);		
 	  	} else {
@@ -138,7 +161,34 @@ module.exports = function(app, key) {
 	        	"version": "2.0",
 	        	"resultCode": "OK",
 	        	"output": {
-	          		"content": errorMsg
+	          		"content2": errorMsg
+	          	}
+	        })
+	  	}
+	  	
+	})
+
+	app.post('/answer.search_intent2', (req, res) => {
+		const body = req.body;
+
+		console.log(JSON.stringify(body));
+
+		if(!body){
+		  notUnderstood(res);
+	  	  return;
+	  	}
+
+	  	if(body.action.parameters.hasOwnProperty("tag_option2")){
+	  		let tag = body.action.parameters.tag_option2.value
+		  	
+			actionOnViewTagIntent(tag, res);		
+	  	} else {
+	  		const errorMsg = `일치하는 태그가 없습니다`;
+			res.json({
+	        	"version": "2.0",
+	        	"resultCode": "OK",
+	        	"output": {
+	          		"content3": errorMsg
 	          	}
 	        })
 	  	}

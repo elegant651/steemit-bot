@@ -39,7 +39,7 @@ module.exports = function(app, key) {
 	}
 
 	const actionOnVoteIntent = (tag, res) => {		
-		app.getDiscussionsByTag(tag).then((post) => {
+		app.getDiscussionsByTagForVote(tag).then((post) => {
 			console.log(JSON.stringify(post));
 
 			app.vote(post, 100).then((post) => {
