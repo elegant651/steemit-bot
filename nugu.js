@@ -18,9 +18,12 @@ module.exports = function(app, key) {
  		if(discuss_option=='최신'){
  			app.getDiscussionsByCreated(st_query).then((result) => {
 					let msg = "";
+					let index = 1;
 					result.forEach((entry) => {
 						const url = "https://steemit.com/"+entry.url;
-						msg += entry.title +"\n URL: "+url;
+						// msg += entry.title +"\n URL: "+url;
+						msg += index + "번. " + entry.title +"\n URL: "+url;
+						index++;
 					});
 					
 					res.json({
@@ -36,9 +39,12 @@ module.exports = function(app, key) {
  		} else if(discuss_option=='핫한'){	     			
  			app.getDiscussionsByHot(st_query).then((result) => {	     				
 				let msg = "";
+				let index = 1;
 				result.forEach((entry) => {
 					const url = "https://steemit.com/"+entry.url;
-					msg += entry.title +"\n URL: "+url;
+					// msg += entry.title +"\n URL: "+url;
+					msg += index + "번. " + entry.title +"\n URL: "+url;
+					index++;
 				});
 				
 				res.json({
@@ -59,9 +65,12 @@ module.exports = function(app, key) {
 			console.log(JSON.stringify(result));
 
 			let msg = "";
+			let index = 1;
 			result.forEach((entry) => {
 				const url = "https://steemit.com/"+entry.url;
-				msg += entry.title +"\n URL: "+url;
+				//msg += entry.title +"\n URL: "+url;
+				msg += index + "번. " + entry.title
+				index++;
 			});
 			
 			res.json({
