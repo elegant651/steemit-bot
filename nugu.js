@@ -65,16 +65,34 @@ module.exports = function(app, key) {
 					const url = "https://steemit.com/"+post.url;
 					msg += post.title +"\n URL: "+url;							
 
-					res.json({ 'speech': msg, 'displayText': msg });			
+					res.json({
+			        	"version": "2.0",
+			        	"resultCode": "OK",
+			        	"output": {
+			          		"content": msg
+			          	}
+			        })
 				}).catch((err) => {
 					console.error(err);
 					const errorMsg = `다음과 같은 이유로, 프로세스가 완료되지 못했습니다 : ${err}`;
-					res.json({ 'speech': errorMsg, 'displayText': errorMsg});
+					res.json({
+			        	"version": "2.0",
+			        	"resultCode": "OK",
+			        	"output": {
+			          		"content": errorMsg
+			          	}
+			        })
 				});
 			}).catch((err) => {
 				console.error(err);
 				const errorMsg = `다음과 같은 이유로, 프로세스가 완료되지 못했습니다 : ${err}`;
-				res.json({ 'speech': errorMsg, 'displayText': errorMsg});
+				res.json({
+		        	"version": "2.0",
+		        	"resultCode": "OK",
+		        	"output": {
+		          		"content": errorMsg
+		          	}
+		        })
 			});
 		}).catch((err) => {
 			console.error(err);
@@ -92,7 +110,7 @@ module.exports = function(app, key) {
 	  	  return;
 	  	}
 
-	  	const option = "최신"
+	  	let option = "최신"
 	  	if(body.action.parameters.hasOwnProperty("ds_option_hot")) {
 	  		option = "핫한"
 	  	}
@@ -104,5 +122,26 @@ module.exports = function(app, key) {
 		const body = req.body;
 
 		console.log(JSON.stringify(body));
+
+		if(!body){
+		  notUnderstood(res);
+	  	  return;
+	  	}
+
+	  	if(body.action.parameters.hasOwnProperty("tag")){
+	  		let tag = body.action.parameters.tag.value
+		  	
+			actionOnVoteIntent(tag, res);		
+	  	} else {
+	  		const errorMsg = `일치하는 태그가 없습니다`;
+			res.json({
+	        	"version": "2.0",
+	        	"resultCode": "OK",
+	        	"output": {
+	          		"content": errorMsg
+	          	}
+	        })
+	  	}
+	  	
 	})
 }
