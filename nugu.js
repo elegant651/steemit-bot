@@ -22,7 +22,7 @@ module.exports = function(app, key) {
 					result.forEach((entry) => {
 						const url = "https://steemit.com/"+entry.url;
 						// msg += entry.title +"\n URL: "+url;
-						msg += index + "번. " + entry.title +"\n URL: "+url;
+						msg += " " + index + "번. " + entry.title +"\n URL: "+url;
 						index++;
 					});
 					
@@ -43,7 +43,7 @@ module.exports = function(app, key) {
 				result.forEach((entry) => {
 					const url = "https://steemit.com/"+entry.url;
 					// msg += entry.title +"\n URL: "+url;
-					msg += index + "번. " + entry.title +"\n URL: "+url;
+					msg += " " + index + "번. " + entry.title +"\n URL: "+url;
 					index++;
 				});
 				
@@ -69,7 +69,7 @@ module.exports = function(app, key) {
 			result.forEach((entry) => {
 				const url = "https://steemit.com/"+entry.url;
 				//msg += entry.title +"\n URL: "+url;
-				msg += index + "번. " + entry.title
+				msg += " " + index + "번. " + entry.title
 				index++;
 			});
 			
